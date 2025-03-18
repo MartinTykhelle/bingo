@@ -1,32 +1,125 @@
 import Dexie from 'dexie';
 
-export const db = new Dexie('bingoDatabase')
+export const db = new Dexie('bingoDatabase');
 
 db.version(1).stores({
-    tiles: "++id"
-}
-)
+    tiles: '++id',
+});
 
-export function initData(tiles){
+export function initData(tiles) {
     console.log(tiles);
     db.table('tiles').clear();
-    tiles.forEach((tileTitle)=>{
-      let tile = {tileTitle: tileTitle, checked:false}  
-      db.table('tiles').add(tile)
-      console.log(tile);
 
-    })
-    
+    for (let index = 0; index < tiles.length; index++) {
+        const element = tiles[index];
+
+        if (index === tiles.length / 2) {
+            db.table('tiles').add({ tileTitle: 'Free Space!', checked: true, freeSpace: false });
+        }
+
+        let tile = { tileTitle: element, checked: false, freeSpace: true };
+        db.table('tiles').add(tile);
+    }
 }
 
-export async function toggleChecked(tileId){
-    let currentState = await  db.table('tiles').get(tileId);
+export async function toggleChecked(tileId) {
+    let currentState = await db.table('tiles').get(tileId);
     console.log(currentState);
-    currentState.checked = ! currentState.checked;
+    currentState.checked = !currentState.checked;
     await db.table('tiles').update(tileId, currentState);
-    
 }
 
-export async function getData(){
+export async function getData() {
     return await db.table('tiles').toArray();
+}
+
+export async function getCount() {
+    return (await db.table('tiles').toArray()).length;
+}
+
+export async function getMaxLengths() {
+    let stuff = (await db.table('tiles').toArray()).map((x) => x.checked);
+    let maxRows = Math.ceil(Math.sqrt(stuff.length));
+    let maxCols = maxRows;
+
+    let rowNum = 0;
+    let colNum = 0;
+    let rows = [];
+    let columns = [];
+    for (let index = 0; index < stuff.length; index++) {
+        /*if (colNum === Math.floor(maxCols / 2) && rowNum === Math.floor(maxRows / 2)) {
+            columns.push(true);
+            colNum++;
+        }*/
+
+        let element = stuff[index];
+        if (colNum >= maxCols) {
+            rows.push(columns);
+            columns = [];
+            colNum = 0;
+            rowNum++;
+        }
+
+        columns.push(element);
+        colNum++;
+        if (index == stuff.length - 1) {
+            rows.push(columns);
+        }
+    }
+
+    let lengths = Array(maxRows)
+        .fill(0)
+        .map(() => Array(maxCols).fill(0));
+
+    for (let row = 0; row < lengths.length; row++) {
+        for (let col = 0; col < lengths[row].length; col++) {
+            let value = rows[row][col];
+            let horizontal = 0;
+            let vertical = 0;
+            let upDiagonal = 0;
+            let downDiagonal = 0;
+            // at position [row][col], lets check how long we can go in ->
+            if (value) {
+                for (let index = col; index < maxCols; index++) {
+                    if (rows[row][index]) {
+                        horizontal++;
+                    } else {
+                        break;
+                    }
+                }
+
+                for (let index = row; index < maxRows; index++) {
+                    if (rows[index][col]) {
+                        vertical++;
+                    } else {
+                        break;
+                    }
+                }
+
+                //there are only two diagonals, for col = row and col = row - maxRows or something
+                if (col === row) {
+                    //downward diagonal
+                    for (let index = 0; index < maxCols; index++) {
+                        if (col + index < maxCols && row + index < maxRows && rows[col + index][row + index]) {
+                            upDiagonal++;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                if (col === maxRows - row - 1) {
+                    //upward diagonal
+                    for (let index = 0; index < maxCols; index++) {
+                        if (col + index < maxCols && row - index > -1 && rows[col + index][row - index]) {
+                            downDiagonal++;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            lengths[row][col] = Math.max(horizontal, vertical, upDiagonal, downDiagonal);
+        }
+    }
+    return Math.max(...lengths.flat());
 }
