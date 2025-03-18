@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "eslint": "^9.22.0",
+    "eslint-plugin-jsdoc": "^50.6.8",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}
