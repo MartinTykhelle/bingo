@@ -14,10 +14,10 @@ export function initData(tiles) {
         const element = tiles[index];
 
         if (index === tiles.length / 2) {
-            db.table('tiles').add({ tileTitle: 'Free Space!', checked: true, freeSpace: false });
+            db.table('tiles').add({ tileTitle: 'Free Space!', checked: true, freeSpace: true });
         }
 
-        let tile = { tileTitle: element, checked: false, freeSpace: true };
+        let tile = { tileTitle: element, checked: false, freeSpace: false };
         db.table('tiles').add(tile);
     }
 }
@@ -84,7 +84,7 @@ export async function getMaxLengths() {
                     if (rows[row][index]) {
                         horizontal++;
                     } else {
-                        break;
+                        //break;
                     }
                 }
 
@@ -92,7 +92,7 @@ export async function getMaxLengths() {
                     if (rows[index][col]) {
                         vertical++;
                     } else {
-                        break;
+                        //break;
                     }
                 }
 
@@ -100,20 +100,24 @@ export async function getMaxLengths() {
                 if (col === row) {
                     //downward diagonal
                     for (let index = 0; index < maxCols; index++) {
-                        if (col + index < maxCols && row + index < maxRows && rows[col + index][row + index]) {
+                        let pos = [index, index];
+                        console.log(`Checking (${pos})`);
+                        if (rows[pos[0]][pos[1]]) {
                             upDiagonal++;
                         } else {
-                            break;
+                            //break;
                         }
                     }
                 }
                 if (col === maxRows - row - 1) {
                     //upward diagonal
                     for (let index = 0; index < maxCols; index++) {
-                        if (col + index < maxCols && row - index > -1 && rows[col + index][row - index]) {
+                        let pos = [maxCols - 1 - index, index];
+                        console.log(`Checking (${pos})`);
+                        if (rows[pos[0]][pos[1]]) {
                             downDiagonal++;
                         } else {
-                            break;
+                            //break;
                         }
                     }
                 }
