@@ -101,7 +101,6 @@ export async function getMaxLengths() {
                     //downward diagonal
                     for (let index = 0; index < maxCols; index++) {
                         let pos = [index, index];
-                        console.log(`Checking (${pos})`);
                         if (rows[pos[0]][pos[1]]) {
                             upDiagonal++;
                         } else {
@@ -113,7 +112,6 @@ export async function getMaxLengths() {
                     //upward diagonal
                     for (let index = 0; index < maxCols; index++) {
                         let pos = [maxCols - 1 - index, index];
-                        console.log(`Checking (${pos})`);
                         if (rows[pos[0]][pos[1]]) {
                             downDiagonal++;
                         } else {
