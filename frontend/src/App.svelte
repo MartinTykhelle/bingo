@@ -16,7 +16,7 @@
     });
 
     async function button() {
-        console.log(bingo.getValue().map((x) => x.checked));
+        await fetchData();
     }
     async function fetchData() {
         let rawData;
