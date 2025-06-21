@@ -4,16 +4,15 @@ export const db = new Dexie('bingoDatabase');
 
 db.version(1).stores({
     tiles: '++id',
+    name: '++id',
 });
 
 export function initData(tiles) {
-    console.log(tiles);
     db.table('tiles').clear();
 
     for (let index = 0; index < tiles.length; index++) {
         const element = tiles[index];
-
-        if (index === tiles.length / 2) {
+        if (index === Math.floor(tiles.length / 2)) {
             db.table('tiles').add({ tileTitle: 'Free Space!', checked: true, freeSpace: true });
         }
 
@@ -33,8 +32,16 @@ export async function getData() {
     return await db.table('tiles').toArray();
 }
 
+export async function getName() {
+    return await db.table('name').toArray();
+}
+
 export async function getCount() {
     return (await db.table('tiles').toArray()).length;
+}
+export async function setName(name) {
+    db.table('name').clear();
+    db.table('name').add({ name: name });
 }
 
 export async function getMaxLengths() {
@@ -42,7 +49,6 @@ export async function getMaxLengths() {
     let maxRows = Math.ceil(Math.sqrt(stuff.length));
     let maxCols = maxRows;
 
-    let rowNum = 0;
     let colNum = 0;
     let rows = [];
     let columns = [];
@@ -57,7 +63,6 @@ export async function getMaxLengths() {
             rows.push(columns);
             columns = [];
             colNum = 0;
-            rowNum++;
         }
 
         columns.push(element);
@@ -123,5 +128,5 @@ export async function getMaxLengths() {
             lengths[row][col] = Math.max(horizontal, vertical, upDiagonal, downDiagonal);
         }
     }
-    return Math.max(...lengths.flat());
+    return [Math.max(...lengths.flat()), stuff.filter((x) => x).length];
 }

@@ -19,12 +19,13 @@
     .tile {
         height: 80px;
         width: 80px;
-        border: 1px solid white;
+        border: 0px;
         background: black;
         color: white;
-        border-radius: 2px;
+        border-radius: 12px;
         font-size: smaller;
         cursor: pointer;
+        padding: 10px;
     }
     .tile:hover {
         background: #cccccc;
